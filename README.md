@@ -1,3 +1,5 @@
+## Setup
+### Credentials
 Create a WifiCredentials.h file in the format of:
 
 ```cpp
@@ -11,5 +13,8 @@ Create a WifiCredentials.h file in the format of:
 
 #endif
 ```
-Add arduinoWebSockets manually to the projects dependencies at .pio/libdeps/x/arduinoWebSockets
+
+### Dependencies
+Add arduinoWebSockets manually to the projects dependencies at `.pio/libdeps/x/arduinoWebSockets`
+
 Found here: https://github.com/Links2004/arduinoWebSockets/
