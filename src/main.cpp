@@ -1,30 +1,5 @@
-// #include <Arduino.h>
-// #include <WiFi.h>
-// #include "Utils.h"
-// #include "HttpUtils.h"
-// // #include <driver/dac.h>
-
-// const int YELLOW_LED_ANALOG = 25;
-// const int WHITE_LED_ANALOG = 26;
-// #define DAC_CH1 25
-
-// void setup() {
-//   Serial.begin(115200);
-//   pinMode(LED_BUILTIN, OUTPUT);
-//   Serial.println("Setup");
-//   WiFi.mode(WIFI_STA);
-//   WiFi.begin(ssid, password);
-//   Serial.print("Connecting to WiFi ..");
-//   while (WiFi.status() != WL_CONNECTED) {
-//     Serial.print('.');
-//     digitalWrite(LED_BUILTIN, !(digitalRead(LED_BUILTIN)));
-//     delay(1000);
-//   }
-//   Serial.println(WiFi.localIP());
 //   // dac_output_enable(DAC_CHANNEL_1);
-// }
 
-// void loop() {
 //   // Step through voltages, delay between levels
 //   dacWrite(DAC_CH1, 0);
 //   Serial.println("DAC Value 0");
@@ -41,8 +16,8 @@
 //   dacWrite(DAC_CH1, 255);
 //   Serial.println("DAC Value 3.3v");
 //   delay(6000);
-
-// }
+#include "Constants.h"
+#include "LampController.h"
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WiFiMulti.h>
@@ -51,19 +26,10 @@
 #include <WebSocketsClient.h>
 #include <SocketIOclient.h>
 #include "WifiCredentials.h"
+#include <driver/dac.h>
 
 WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
-
-const char *ssid = WIFI_SSID;
-const char *password = WIFI_PASSWORD;
-const char* websockets_server_host = "localhost"; 
-const uint16_t websockets_server_port = 3001;
-
-const int YELLOW_LED_ANALOG = 25;
-const int WHITE_LED_ANALOG = 26;
-#define DAC_CH1 25
-
 
 void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length) {
     switch(type) {
@@ -84,7 +50,7 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
             if(id) {
                 payload = (uint8_t *)sptr;
             }
-            DynamicJsonDocument doc(1024);
+            JsonDocument doc;
             DeserializationError error = deserializeJson(doc, payload, length);
             if(error) {
                 Serial.print(F("deserializeJson() failed: "));
@@ -93,17 +59,26 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
             }
 
             String eventName = doc[0];
+            String eventBody = doc[1];
             Serial.printf("[IOc] event name: %s\n", eventName.c_str());
+            Serial.printf("[IOc] event: %s\n", eventBody.c_str());
+
+            if (eventName == "toggleLampPower") {
+                handleToggleLampPower(doc[1]);
+            } else if (eventName == "lampPower") {
+                handleLampPower(doc[1]);
+            }
 
             // Message Includes a ID for a ACK (callback)
             if(id) {
                 // creat JSON message for Socket.IO (ack)
-                DynamicJsonDocument docOut(1024);
+                JsonDocument docOut;
                 JsonArray array = docOut.to<JsonArray>();
 
                 // add payload (parameters) for the ack (callback function)
-                JsonObject param1 = array.createNestedObject();
+                JsonObject param1;
                 param1["now"] = millis();
+                array[0] = param1;
 
                 // JSON to String (serializion)
                 String output;
@@ -139,20 +114,15 @@ void setup()
     }
     Serial.setDebugOutput(true);
     pinMode(LED_BUILTIN, OUTPUT);
-    
-    Serial.println();
-    Serial.println();
-    Serial.println();
 
-      for(uint8_t t = 4; t > 0; t--) {
+      for(uint8_t t = 2; t > 0; t--) {
           Serial.printf("[SETUP] BOOT WAIT %d...\n", t);
           Serial.flush();
           delay(1000);
       }
 
-    WiFiMulti.addAP(ssid, password);
+    WiFiMulti.addAP(WIFI_SSID, WIFI_PASSWORD);
 
-    //WiFi.disconnect();
     while(WiFiMulti.run() != WL_CONNECTED) {
         delay(100);
     }
@@ -161,10 +131,12 @@ void setup()
     Serial.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
     // server address, port and URL
-    socketIO.begin("10.0.0.115", 3001, "/socket.io/?EIO=4");
+    socketIO.begin(websockets_server_host, websockets_server_port, "/socket.io/?EIO=4");
 
     // event handler
     socketIO.onEvent(socketIOEvent);
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_enable(DAC_CHANNEL_2);
 }
 
 unsigned long messageTimestamp = 0;
