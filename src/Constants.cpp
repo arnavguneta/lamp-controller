@@ -1,6 +1,6 @@
 #include "Constants.h"
 
-const char* websockets_server_host = "10.0.0.143";
+const char* websockets_server_host = "10.0.0.129";
 const int websockets_server_port = 3001;
 
 const int YELLOW_LED_ANALOG = 25;
