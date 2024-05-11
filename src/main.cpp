@@ -67,6 +67,8 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
                 handleToggleLampPower(doc[1]);
             } else if (eventName == "lampPower") {
                 handleLampPower(doc[1]);
+            } else if (eventName == "brightness") {
+                handleBrightness(doc[1]);
             }
 
             // Message Includes a ID for a ACK (callback)

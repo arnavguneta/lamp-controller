@@ -5,5 +5,6 @@
 
 void handleToggleLampPower(const String& eventBody);
 void handleLampPower(const String& eventBody);
+void handleBrightness(const String& eventBody);
 
 #endif

@@ -41,5 +41,5 @@ void handleBrightness(const String &eventBody)
 {
     JsonDocument doc;
     deserializeJson(doc, eventBody);
-    setLampPower(true, doc["brightness"]);
+    setLampPower(true, doc["level"]);
 }
