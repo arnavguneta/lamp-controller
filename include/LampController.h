@@ -25,7 +25,7 @@ struct Lamp : Service::LightBulb
     {
         power = new Characteristic::On();
         level = new Characteristic::Brightness(33);
-        level->setRange(33, 100, 33);
+        level->setRange(33, 100, 1);
     }
 
     boolean update()
