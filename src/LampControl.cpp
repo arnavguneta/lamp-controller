@@ -7,9 +7,9 @@
 
 bool lampPowerState = false;
 
-std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 175}, {"high", 255}};
+std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 150}, {"high", 255}};
 
-void setLampPower(bool state, String brightness = "high")
+void setLampPower(bool state, String brightness)
 {
     Serial.printf("[LampController] Power state: %d -> %d\n", lampPowerState, state);
     lampPowerState = state;
