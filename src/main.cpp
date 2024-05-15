@@ -14,6 +14,8 @@
 WiFiMulti WiFiMulti;
 SocketIOclient socketIO;
 
+Lamp *lampInstance;
+
 void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length)
 {
     switch (type)
@@ -52,15 +54,15 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t *payload, size_t length)
 
         if (eventName == "toggleLampPower")
         {
-            handleToggleLampPower(doc[1]);
+            lampInstance->handleToggleLampPower(doc[1]);
         }
         else if (eventName == "lampPower")
         {
-            handleLampPower(doc[1]);
+            lampInstance->handleLampPower(doc[1]);
         }
         else if (eventName == "brightness")
         {
-            handleBrightness(doc[1]);
+            lampInstance->handleBrightness(doc[1]);
         }
 
         // Message Includes a ID for a ACK (callback)
@@ -117,24 +119,16 @@ void setup()
         delay(1000);
     }
 
+    // wifi setup
     WiFiMulti.addAP(WIFI_SSID, WIFI_PASSWORD);
-
     while (WiFiMulti.run() != WL_CONNECTED)
     {
         delay(100);
     }
-
     String ip = WiFi.localIP().toString();
     Serial.printf("[SETUP] WiFi Connected %s\n", ip.c_str());
 
-    // server address, port and URL
-    socketIO.begin(websockets_server_host, websockets_server_port, "/socket.io/?EIO=4");
-
-    // event handler
-    socketIO.onEvent(socketIOEvent);
-    dac_output_enable(DAC_CHANNEL_1);
-    dac_output_enable(DAC_CHANNEL_2);
-
+    // homespan setup
     homeSpan.setWifiCredentials(WIFI_SSID, WIFI_PASSWORD);
     homeSpan.setWifiCallback([](){homeSpan.setPairingCode("11122333");});
     homeSpan.begin(Category::Lighting, "Room Lamp 1");
@@ -143,7 +137,15 @@ void setup()
     new Service::AccessoryInformation();
     new Characteristic::Identify();
 
-    new Lamp();
+    lampInstance = new Lamp();
+
+    // ws set up
+    socketIO.begin(websockets_server_host, websockets_server_port, "/socket.io/?EIO=4");
+
+    // ws event handler
+    socketIO.onEvent(socketIOEvent);
+    dac_output_enable(DAC_CHANNEL_1);
+    dac_output_enable(DAC_CHANNEL_2);
 }
 
 void loop()

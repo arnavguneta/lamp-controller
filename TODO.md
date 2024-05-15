@@ -1,3 +1,0 @@
-- Add other methods as part of struct
-- Update struct power and brightness on socket or api updates
-- Add wait between updates for slider

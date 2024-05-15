@@ -4,24 +4,34 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-bool lampPowerState = false;
-
 std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 150}, {"high", 255}};
 
-String categorize_brightness(int value) 
+String Lamp::categorizeBrightness(int value) 
 {
-    if (value < 33)
+    if (value <= 33)
         return "low";
-    else if (value >= 33 && value <= 66)
+    else if (value > 33 && value <= 66)
         return "medium";
     else
         return "high";
 }
 
-void setLampPower(bool state, String brightness)
+int Lamp::categoryToBrightness(String category) {
+    if (category.compareTo("low") == 0)
+        return 33;
+    else if (category.compareTo("medium") == 0)
+        return 66;
+    else
+        return 100;
+} 
+
+void Lamp::setLampPower(bool state, String brightness)
 {
-    Serial.printf("[LampController] Power state: %d -> %d\n", lampPowerState, state);
-    lampPowerState = state;
+    Lamp::setBrightnessCharacteristic(brightness);
+    Lamp::setPowerCharacteristic(state);
+    bool lampPowerState = Lamp::getPowerCharacteristic()->getVal<bool>();
+    Serial.printf("[LampController] Power state: %d -> %d, brightness %s\n", lampPowerState, state, brightness.c_str());
+
     if (lampPowerState)
     {
         dacWrite(YELLOW_LED_ANALOG, brightnessMap[brightness]);
@@ -34,19 +44,20 @@ void setLampPower(bool state, String brightness)
     }
 }
 
-void handleToggleLampPower(const String &eventBody)
+void Lamp::handleToggleLampPower(const String &eventBody)
 {
+    bool lampPowerState = Lamp::getPowerCharacteristic()->getVal<bool>();    
     setLampPower(!lampPowerState);
 }
 
-void handleLampPower(const String &eventBody)
+void Lamp::handleLampPower(const String &eventBody)
 {
     JsonDocument doc;
     deserializeJson(doc, eventBody);
     setLampPower(doc["state"]);
 }
 
-void handleBrightness(const String &eventBody)
+void Lamp::handleBrightness(const String &eventBody)
 {
     JsonDocument doc;
     deserializeJson(doc, eventBody);
