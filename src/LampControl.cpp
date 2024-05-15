@@ -3,11 +3,20 @@
 
 #include <ArduinoJson.h>
 #include <Arduino.h>
-#include <map>
 
 bool lampPowerState = false;
 
 std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 150}, {"high", 255}};
+
+String categorize_brightness(int value) 
+{
+    if (value < 33)
+        return "low";
+    else if (value >= 33 && value <= 66)
+        return "medium";
+    else
+        return "high";
+}
 
 void setLampPower(bool state, String brightness)
 {

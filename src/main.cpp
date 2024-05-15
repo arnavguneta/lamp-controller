@@ -107,7 +107,7 @@ void setup()
     {
         ; // Wait for serial port to connect. Needed for native USB port only
     }
-    // Serial.setDebugOutput(true);
+    Serial.setDebugOutput(true);
     pinMode(LED_BUILTIN, OUTPUT);
 
     for (uint8_t t = 2; t > 0; t--)
@@ -135,6 +135,8 @@ void setup()
     dac_output_enable(DAC_CHANNEL_1);
     dac_output_enable(DAC_CHANNEL_2);
 
+    homeSpan.setWifiCredentials(WIFI_SSID, WIFI_PASSWORD);
+    homeSpan.setWifiCallback([](){homeSpan.setPairingCode("11122333");});
     homeSpan.begin(Category::Lighting, "Room Lamp 1");
 
     new SpanAccessory();
