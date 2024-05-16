@@ -1,1 +1,3 @@
 - Add failsafe for when wifi connection is lost, keep lamp on at night
+- Make category to brightness a look up map instead
+- Rename brightnessMap variable to brightnessVoltageMap
