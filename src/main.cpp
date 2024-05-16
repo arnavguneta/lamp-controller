@@ -130,7 +130,7 @@ void setup()
 
     // homespan setup
     homeSpan.setWifiCredentials(WIFI_SSID, WIFI_PASSWORD);
-    homeSpan.setWifiCallback([](){homeSpan.setPairingCode("11122333");});
+    homeSpan.setWifiCallback([](){homeSpan.setPairingCode("11122334");});
     homeSpan.begin(Category::Lighting, "Room Lamp 2");
 
     new SpanAccessory();
