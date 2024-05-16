@@ -1,0 +1,1 @@
+- Add failsafe for when wifi connection is lost, keep lamp on at night

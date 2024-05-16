@@ -32,7 +32,7 @@ struct Lamp : Service::LightBulb
     boolean update()
     {
         String newBrightnessCategory = categorizeBrightness(level->getNewVal());
-        if (newBrightnessCategory.compareTo(brightnessCategory) == 0)
+        if (newBrightnessCategory.compareTo(brightnessCategory) == 0 && power->getNewVal<bool>() == power->getVal<bool>())
             return (true);
         brightnessCategory = newBrightnessCategory;
         setLampPower(power->getNewVal<bool>(), newBrightnessCategory);

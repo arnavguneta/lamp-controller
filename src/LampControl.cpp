@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 150}, {"high", 255}};
+std::map<String, int> brightnessMap = {{"low", 87}, {"medium", 120}, {"high", 255}};
 
 String Lamp::categorizeBrightness(int value) 
 {
@@ -27,12 +27,12 @@ int Lamp::categoryToBrightness(String category) {
 
 void Lamp::setLampPower(bool state, String brightness)
 {
+    bool prevPowerState = Lamp::getPowerCharacteristic()->getVal<bool>();
     Lamp::setBrightnessCharacteristic(brightness);
     Lamp::setPowerCharacteristic(state);
-    bool lampPowerState = Lamp::getPowerCharacteristic()->getVal<bool>();
-    Serial.printf("[LampController] Power state: %d -> %d, brightness %s\n", lampPowerState, state, brightness.c_str());
+    Serial.printf("[LampController] Power state: %d -> %d, brightness %s\n", prevPowerState, state, brightness.c_str());
 
-    if (lampPowerState)
+    if (state)
     {
         dacWrite(YELLOW_LED_ANALOG, brightnessMap[brightness]);
         dacWrite(WHITE_LED_ANALOG, brightnessMap[brightness]);
